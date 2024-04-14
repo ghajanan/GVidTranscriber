@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>File Upload</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap-theme.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .slide-in {
+            animation: slide-in 0.5s ease-out;
+        }
+        .slide-in-1 {
+            animation: slide-in 0.7s ease-out;
+        }
+        .slide-in-2 {
+            animation: slide-in 0.9s ease-out;
+        }
+        @keyframes slide-in {
+            0% {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-white shadow-md py-4">
+        <div class="container mx-auto flex items-center justify-between">
+            <div class="flex items-center">
+                <img alt="logo" class="mr-4" height="50" src="static\styles\css\gvidtranscriber-high-resolution-logo-transparent.png" width="150"/>
+                <span class="text-lg font-semibold">File Upload</span>
+            </div>
+            <div>
+                <a href="#" class="text-blue-600 hover:text-blue-800 mr-4">Sign Up</a>
+                <a href="#" class="text-blue-600 hover:text-blue-800">Login</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="min-h-screen flex flex-col items-center justify-center">
+        <div class="text-center">
+            <h1 class="text-3xl font-semibold mb-8">Let's upload your file</h1>
+            <div class="row mt-4">
+                <div class="d-grid gap-2 col-6 mx-auto slide-in-2">
+                    <input type="file" class="form-control-file" id="videoUpload" accept="video/*">
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="d-grid gap-2 col-6 mx-auto" id="generateBtnSection">
+                    <button class="btn btn-primary btn-sm" id="generateTranscriptBtn">Generate Transcript</button>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12 text-center" id="processingAnimation" style="display:none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Processing...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body" id="transcriptOutput" style="display:none;">
+                            <h5 class="card-title">Transcript</h5>
+                            <p class="card-text" id="transcriptText">Your transcript will appear here...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-8 right-8">
+            <button class="text-blue-600 bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">
+                <i class="fas fa-question"></i>
+            </button>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 text-white py-4">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2024 File Upload. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#generateTranscriptBtn').click(function() {
+                var fileInput = $('#videoUpload')[0];
+                var file = fileInput.files[0];
+                console.log("Selected file:", file);
+
+                if (file) {
+                    var formData = new FormData();
+                    formData.append('file', file);
+
+                    $('#processingAnimation').show();
+                    $('#transcriptOutput').hide();
+
+                    $.ajax({
+                        url: '/transcribe',
+                        type: 'POST',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function(response) {
+                            $('#processingAnimation').hide();
+                            $('#transcriptText').text(response.transcript);
+                            $('#transcriptOutput').show();
+                        },
+                        error: function() {
+                            $('#processingAnimation').hide();
+                            alert('Error processing file');
+                        }
+                    });
+                } else {
+                    alert('Please select a file to upload');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
